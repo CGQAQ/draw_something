@@ -8,7 +8,7 @@ const config: ConnectionConfig = {
     user: 'root',
     password: 'xmMHWHslsRnzXZlTa0oy',
     database: 'db_game'
-}
+};
 
 export default class Db{
     private con: Connection;

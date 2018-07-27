@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@types/mysql": "^2.15.5",
+    "bulma": "^0.7.1",
+    "font-awesome": "^4.7.0",
     "mysql": "^2.16.0",
     "typescript": "^2.9.2",
     "vue": "^2.5.16",
