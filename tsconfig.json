@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+        "rootDir": "server",
+        "outDir": "server/dist"
+    },
+    "include": [
+        "*/**.ts"
+    ]
+}
