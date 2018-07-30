@@ -46,7 +46,7 @@ export default{
             &::after{
                 content: 'Draw something';
                 position: absolute;
-                top: 4em;
+                top: 3rem;
                 color: $main-color;
                 border: $main-color 1px solid;
                 margin-left: .4em;

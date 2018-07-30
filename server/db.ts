@@ -1,5 +1,5 @@
 // @ts-check
-import { createConnection, ConnectionConfig, queryCallback, Connection } from "mysql";
+import {createConnection, ConnectionConfig, Connection, queryCallback} from "mysql";
 
 
 const config: ConnectionConfig = {
@@ -22,7 +22,7 @@ export default class Db{
         this.con = con;
     }
 
-    query(sql: string){
-        return this.con.query(sql)
+    query(sql: string, params: string[], callback: queryCallback){
+        return this.con.query(sql, params, callback)
     }
 }

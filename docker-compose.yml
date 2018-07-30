@@ -1,10 +1,9 @@
 version: '3'
-services: 
+services:
   mysql:
     image: mysql:5.7
     restart: always
-    environment: 
+    environment:
       MYSQL_ROOT_PASSWORD: xmMHWHslsRnzXZlTa0oy
-      MYSQL_DATABASE: db_game
     ports:
       - "8090:3306"
