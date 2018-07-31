@@ -5,8 +5,8 @@ use db_game;
 -- create user table 
 create table tb_users(
 	id bigint auto_increment,
-    account  varchar(20)   not null ,
-    nickname varchar(15) unique not null,
+    account  varchar(20)  not null ,
+    nickname varchar(15)  not null,
     password varchar(100) not null,
     question varchar (50) not null,
     answer varchar (100) not null,

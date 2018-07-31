@@ -6,6 +6,8 @@ import * as Express from 'express';
 import {check, oneOf, validationResult} from 'express-validator/check';
 import { genSaltSync, compareSync, hashSync} from 'bcryptjs';
 
+import * as cors from 'cors';
+
 const app  = Express()
 const port = 8000;
 const server = app.listen(port);
@@ -13,6 +15,7 @@ const am = new AccountManager();
 
 app.use(Express.urlencoded());
 app.use(Express.json());
+app.use(cors());
 
 app.post('/api/signup',
     [
@@ -30,7 +33,7 @@ app.post('/api/signup',
         check('password')
             .exists().withMessage('password does not exists!')
             .isString().withMessage('password does not a string')
-            .matches(/^.{6,24}$/).withMessage('password format invalid')
+            .matches(/^[a-zA-Z0-9-_\$\*\.]{6,24}$/).withMessage('password format invalid')
             .not().isEmpty().withMessage('password is empty!'),
         check('question')
             .exists().withMessage('question does not exists!')
@@ -45,7 +48,6 @@ app.post('/api/signup',
     ],
     function (req, res: Response) {
     const result = validationResult(req);
-    res.header('Access-Control-Allow-Origin', '1')
     if(result.isEmpty()){
         am.signup(<Account>{
             account: req.body.account,
