@@ -4,9 +4,17 @@ import { AccountManager, Account } from './AccountManager'
 import { Response } from 'express';
 import * as Express from 'express';
 import {check, oneOf, validationResult} from 'express-validator/check';
+import * as express_session from 'express-session';
+
 import { genSaltSync, compareSync, hashSync} from 'bcryptjs';
 
+import { serializeUser, deserializeUser, initialize, session } from 'passport';
+
 import * as cors from 'cors';
+
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 const app  = Express()
 const port = 8000;
@@ -16,6 +24,10 @@ const am = new AccountManager();
 app.use(Express.urlencoded());
 app.use(Express.json());
 app.use(cors());
+app.use(express_session({secret: process.env.SESSION_SECRET || 'asdDFuiawwe564--'}))
+app.use(initialize());
+app.use(session());
+
 
 app.post('/api/signup',
     [
@@ -56,8 +68,13 @@ app.post('/api/signup',
             question: req.body.question,
             answer: hashSync(req.body.answer),
         }, res);
+        res.redirect('/#/signin');
     }
     else{
         res.json(result.mapped());
     }
+});
+
+
+app.post('/api/signin',function(req, res, next){
 });
