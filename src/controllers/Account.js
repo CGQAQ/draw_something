@@ -13,4 +13,17 @@ export default {
             },
         );
     },
+    login(account, callback) {
+        axios.post(
+            'http://localhost:8000/api/login',
+            {
+                account: account.account,
+                password: account.password,
+            }
+        ).then((value) => {
+            callback(value.data)
+        }).catch((err) => {
+            throw err;
+        })
+    }
 };

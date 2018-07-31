@@ -12,6 +12,12 @@ export interface Account {
     lastseen?: string;
 }
 
+export enum ERROR_CODE {
+    ACCOUNT_SUCCESS = 0,
+    ACCOUNT_WRONG_ACCOUNT,
+    ACCOUNT_WRONG_PASSWORD,
+}
+
 export interface ResponseFormat {
     code: number,
     codeString: string,
@@ -20,13 +26,13 @@ export interface ResponseFormat {
 }
 
 export class AccountManager {
-    db: Db;
+    private db: Db;
 
     constructor() {
         this.db = new Db();
     }
 
-    signup(account: Account, res: Response) {
+    signup(account: Account, callback: (err, data) => void) {
         this.db.query(
                 `
               insert into db_game.tb_users (account, nickname, password, question, answer)
@@ -34,25 +40,20 @@ export class AccountManager {
             `,
             [account.account, account.nickname, account.password, account.question, account.answer],
             (error, results, fields) => {
-                if(error){
-                    console.warn('--- signup warning ---');
-                    console.warn(error.errno);
-                    console.warn(error.code);
-                    console.warn(error.sqlMessage);
-                    console.warn('--- end warning ---');
-                    res.json(<ResponseFormat>{
-                        code: error.errno,
-                        codeString: error.code,
-                        codeDes: error.sqlMessage,
-                    });
-                }
-                else{
-                    res.json(<ResponseFormat>{
-                       code: 0,
-                       codeString: 'success',
-                       codeDes: 'exec success' ,
-                    });
-                }
+                callback(error, results);
+            }
+        )
+    }
+
+    login(account: string, callback: (err, data) => void){
+        this.db.query(
+            `
+            select * from tb_users where account=?
+            `,
+            [account]
+            ,
+            (error, results, fields)=>{
+                callback(error, results);
             }
         )
     }

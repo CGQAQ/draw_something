@@ -5,12 +5,16 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
-
+        account: {}
     },
     mutations: {
-
+        setAccount(state, account){
+            state.account = account;
+        },
     },
     actions: {
-
+        fetchAccount({commit}, account){
+            commit('setAccount', account)
+        }
     },
 });

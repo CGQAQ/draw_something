@@ -1,18 +1,19 @@
 import Db from  './db';
-import { AccountManager, Account } from './AccountManager'
+import { AccountManager, Account, ResponseFormat, ERROR_CODE } from './AccountManager'
 
 import { Response } from 'express';
 import * as Express from 'express';
 import {check, oneOf, validationResult} from 'express-validator/check';
 import * as express_session from 'express-session';
 
-import { genSaltSync, compareSync, hashSync} from 'bcryptjs';
+import { hashSync, compareSync } from 'bcryptjs';
 
 import { serializeUser, deserializeUser, initialize, session } from 'passport';
 
 import * as cors from 'cors';
 
 import * as dotenv from 'dotenv';
+import { userInfo } from 'os';
 
 dotenv.config();
 
@@ -21,12 +22,23 @@ const port = 8000;
 const server = app.listen(port);
 const am = new AccountManager();
 
-app.use(Express.urlencoded());
+app.use(Express.urlencoded({extended: true}));
 app.use(Express.json());
 app.use(cors());
-app.use(express_session({secret: process.env.SESSION_SECRET || 'asdDFuiawwe564--'}))
+app.use(express_session({
+    secret: process.env.SESSION_SECRET || 'asdDFuiawwe564--',
+    resave: false,
+    saveUninitialized: true
+}))
 app.use(initialize());
 app.use(session());
+
+serializeUser((user, done) => {
+    done(null, user);
+});
+deserializeUser((user, done) => {
+    done(null, user);
+});
 
 
 app.post('/api/signup',
@@ -67,8 +79,30 @@ app.post('/api/signup',
             password: hashSync(req.body.password),
             question: req.body.question,
             answer: hashSync(req.body.answer),
-        }, res);
-        res.redirect('/#/signin');
+        }, 
+        (err, data)=>{
+            if(err){
+                console.warn('--- signup warning ---');
+                console.warn(err.errno);
+                console.warn(err.code);
+                console.warn(err.sqlMessage);
+                console.warn('--- end warning ---');
+                res.json(<ResponseFormat>{
+                    code: err.errno,
+                    codeString: err.code,
+                    codeDes: err.sqlMessage,
+                });
+            }
+            else{
+                res.json(<ResponseFormat>{
+                    code: 0,
+                    codeString: 'success',
+                    codeDes: 'signup success' ,
+                 });
+            }
+        }
+    );
+        res.redirect('/#/login');
     }
     else{
         res.json(result.mapped());
@@ -76,5 +110,49 @@ app.post('/api/signup',
 });
 
 
-app.post('/api/signin',function(req, res, next){
+app.post('/api/login',function(req, res, next){
+    const account = req.body.account;
+    const password = req.body.password;
+    am.login(account, (err,data) =>{
+        if(err){
+            console.warn('--- login warning ---');
+            console.warn(err.errno);
+            console.warn(err.code);
+            console.warn(err.sqlMessage);
+            console.warn('--- end warning ---');
+            res.json(<ResponseFormat>{
+                code: err.errno,
+                codeString: err.code,
+                codeDes: err.sqlMessage,
+            });
+        }
+        else{
+            if(data.length === 0){
+                res.json(<ResponseFormat>{
+                    code: ERROR_CODE.ACCOUNT_WRONG_ACCOUNT,
+                    codeString: 'ACCOUNT_WRONG_ACCOUNT',
+                    codeDes: 'account not exist'
+                });
+            }
+            else if(!compareSync(password, data[0].password)){
+                res.json(<ResponseFormat>{
+                    code: ERROR_CODE.ACCOUNT_WRONG_PASSWORD,
+                    codeString: 'ACCOUNT_WRONG_PASSWORD',
+                    codeDes: 'wrong password'
+                })
+            }
+            else{
+                res.json(<ResponseFormat>{
+                    code: ERROR_CODE.ACCOUNT_SUCCESS,
+                    codeString: 'success',
+                    codeDes: 'login success' ,
+                    data: {
+                        account: data[0].account,
+                        nickname: data[0].nickname,
+                        signup: data[0].signup,
+                    }
+                });
+            }
+        }
+    });
 });
